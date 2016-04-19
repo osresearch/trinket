@@ -6,6 +6,9 @@
 
 #include <TrinketKeyboard.h>
 
+#include <Wire.h>
+#include "MMA8451.h"
+
 // The built in LED on the trinket
 #define LED_PIN 1
 
@@ -14,6 +17,7 @@ int last_keystroke;
 void setup()
 {
 	TrinketKeyboard.begin();
+	MMA8451_begin();
 	pinMode(LED_PIN, OUTPUT);
 }
 
