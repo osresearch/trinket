@@ -62,5 +62,8 @@ typedef enum
 
 extern bool MMA8451_begin(uint8_t i2caddr = MMA8451_DEFAULT_ADDRESS);
 
+extern int x;
+extern int y;
+extern int z;
 
 #endif

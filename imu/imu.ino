@@ -21,6 +21,16 @@ void setup()
 	pinMode(LED_PIN, OUTPUT);
 }
 
+
+char hexdigit(unsigned x)
+{
+	x &= 0xF;
+	if (x < 10)
+		return x + '0';
+	else
+		return x + 'A' - 0xA;
+}
+
 void loop()
 {
 	// The USB port must be polled at least every 10ms
@@ -32,8 +42,20 @@ void loop()
 		return;
 
 	digitalWrite(LED_PIN, 1);
-	TrinketKeyboard.pressKey(KEYCODE_MOD_LEFT_SHIFT, KEYCODE_A);
-	TrinketKeyboard.pressKey(0, 0); // release
+	MMA8451_read();
+
+	char buf[8] = {
+		hexdigit(x >> 12),
+		hexdigit(x >>  8),
+		hexdigit(x >>  4),
+		hexdigit(x >>  0),
+		'\n',
+		0
+	};
+		
+	//TrinketKeyboard.pressKey(KEYCODE_MOD_LEFT_SHIFT, KEYCODE_A);
+	//TrinketKeyboard.pressKey(0, 0); // release
+	TrinketKeyboard.print(buf);
 	last_keystroke = now;
 	digitalWrite(LED_PIN, 0);
 }
