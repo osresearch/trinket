@@ -13,6 +13,8 @@
 #define LED_PIN 1
 
 int last_keystroke;
+int min_x = +65536;
+int max_x = -65536;
 
 void setup()
 {
@@ -37,18 +39,36 @@ void loop()
 	// to let the computer know that we are still here.
 	TrinketKeyboard.poll();
 
+	// track the maximum/min value read during this period
+	MMA8451_read();
+	if (x < min_x)
+		min_x = x;
+	if (x > max_x)
+		max_x = x;
+
+	// Send an update at 4 Hz
 	int now = millis();
-	if (now - last_keystroke < 1000)
+	if (now - last_keystroke < 250)
 		return;
+	last_keystroke = now;
+
 
 	digitalWrite(LED_PIN, 1);
-	MMA8451_read();
+
+	// convert the current 14-bit X acceleration into a value
+	// from +/- 4096 to the letters A-Z
+
+	// pick the larger magnitude of the readings
+	int v = max_x > -min_x ? max_x : min_x;
+	max_x = -65536;
+	min_x = +65536;
+	
 
 	char buf[8] = {
-		hexdigit(x >> 12),
-		hexdigit(x >>  8),
-		hexdigit(x >>  4),
-		hexdigit(x >>  0),
+		hexdigit(v >> 12),
+		hexdigit(v >>  8),
+		hexdigit(v >>  4),
+		hexdigit(v >>  0),
 		'\n',
 		0
 	};
@@ -56,6 +76,5 @@ void loop()
 	//TrinketKeyboard.pressKey(KEYCODE_MOD_LEFT_SHIFT, KEYCODE_A);
 	//TrinketKeyboard.pressKey(0, 0); // release
 	TrinketKeyboard.print(buf);
-	last_keystroke = now;
 	digitalWrite(LED_PIN, 0);
 }
