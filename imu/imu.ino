@@ -48,22 +48,20 @@ void loop()
 
 	// Send an update at 4 Hz
 	int now = millis();
-	if (now - last_keystroke < 250)
+	if (now - last_keystroke < 100)
 		return;
 	last_keystroke = now;
 
 
 	digitalWrite(LED_PIN, 1);
 
-	// convert the current 14-bit X acceleration into a value
-	// from +/- 4096 to the letters A-Z
-
 	// pick the larger magnitude of the readings
 	int v = max_x > -min_x ? max_x : min_x;
 	max_x = -65536;
 	min_x = +65536;
 	
-
+#if 0
+	// print the raw reading
 	char buf[8] = {
 		hexdigit(v >> 12),
 		hexdigit(v >>  8),
@@ -73,8 +71,20 @@ void loop()
 		0
 	};
 		
-	//TrinketKeyboard.pressKey(KEYCODE_MOD_LEFT_SHIFT, KEYCODE_A);
-	//TrinketKeyboard.pressKey(0, 0); // release
 	TrinketKeyboard.print(buf);
+#else
+	// convert the current 14-bit X acceleration into a value
+	// from +/- 4096 to the letters A-Z
+	v = v / (4096 / 20);
+	if (v > 13)
+		v = 13;
+	else
+	if (v < -12)
+		v = -12;
+
+	TrinketKeyboard.pressKey(KEYCODE_MOD_LEFT_SHIFT, KEYCODE_M + v);
+	TrinketKeyboard.pressKey(0, 0); // release
+#endif
+
 	digitalWrite(LED_PIN, 0);
 }
